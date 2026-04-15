@@ -4,7 +4,7 @@
   
   const RESTAURANTES = [
     { id: 'r1', nombre: 'PIZZERIA AYASE', categoria: 'aparicion', img: './assets/ayasechibi.png' },
-    { id: 'r2', nombre: 'BURGER SAIKO', categoria: 'aparicion', img: './assets/saikochibi.png' },
+    { id: 'r2', nombre: 'BURGER SEIKO', categoria: 'aparicion', img: './assets/saikochibi.png' },
     { id: 'r3', nombre: 'RAMEN OKARUN', categoria: 'paranormal', img: './assets/okarunchibi.png' },
     { id: 'r4', nombre: 'SUSHI AIRA', categoria: 'paranormal', img: './assets/airachibi.png' },
     { id: 'r5', nombre: 'POSTRES JIJI', categoria: 'espiritual', img: './assets/jijichibi.png' },
