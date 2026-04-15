@@ -1,0 +1,263 @@
+(function () {
+  'use strict';
+  const IMAGEN_FEEDBACK = './assets/bemoraok.png'; 
+  
+  const RESTAURANTES = [
+    { id: 'r1', nombre: 'PIZZERIA AYASE', categoria: 'aparicion', img: './assets/ayasechibi.png' },
+    { id: 'r2', nombre: 'BURGER SAIKO', categoria: 'aparicion', img: './assets/saikochibi.png' },
+    { id: 'r3', nombre: 'RAMEN OKARUN', categoria: 'paranormal', img: './assets/okarunchibi.png' },
+    { id: 'r4', nombre: 'SUSHI AIRA', categoria: 'paranormal', img: './assets/airachibi.png' },
+    { id: 'r5', nombre: 'POSTRES JIJI', categoria: 'espiritual', img: './assets/jijichibi.png' },
+    { id: 'r6', nombre: 'TACOS TURBO ABUELA', categoria: 'aparicion', img: './assets/turboabuela.png' }
+  ];
+
+  const MENU = { 
+    r1: [
+      { id: 'm1', nombre: '🍕 TELEQUINESIS DE QUESO', precio: 110, icon: 'bi-magic' }, 
+      { id: 'm2', nombre: '🍕 PEPERONI ESPIRITUAL', precio: 125, icon: 'bi-ghost' }
+    ], 
+    r2: [
+      { id: 'm4', nombre: '🍔 BURGER JUVENIL', precio: 160, icon: 'bi-lightning-charge' }, 
+      { id: 'm7', nombre: '🍟 PAPAS EXORCISADAS', precio: 55, icon: 'bi-rocket-takeoff' }
+    ], 
+    r3: [
+      { id: 'm5', nombre: '🍜 RAMEN DE MALDITO', precio: 140, icon: 'bi-water' }, 
+      { id: 'm9', nombre: '🍜 MISO ESPECTRAL', precio: 135, icon: 'bi-incognito' }
+    ], 
+    r4: [
+      { id: 'm10', nombre: '🍣 MAKI MALDITO', precio: 180, icon: 'bi-cpu' }, 
+      { id: 'm11', nombre: '🍣 NIGIRI ROSADO', precio: 200, icon: 'bi-ufo' }
+    ], 
+    r5: [
+      { id: 'm13', nombre: '🍰 PASTEL POSEIDO', precio: 90, icon: 'bi-heart-pulse' }, 
+      { id: 'm14', nombre: '🍦 HELADO OJO MALDITO', precio: 70, icon: 'bi-eye' }
+    ], 
+    r6: [
+      { id: 'm16', nombre: '🌮 TACO EXORCISMO', precio: 45, icon: 'bi-fire' }, 
+      { id: 'm17', nombre: '🥤 AGUA GATUNA', precio: 30, icon: 'bi-droplet-half' }
+    ] 
+  };
+  
+  let restauranteActual = null, pedido = [];
+  
+  const elFiltro = document.getElementById('filtro-cat'), 
+        elListaRest = document.getElementById('lista-restaurantes'), 
+        elStepRest = document.getElementById('step-restaurante'), 
+        elStepProd = document.getElementById('step-productos'), 
+        elStepRes = document.getElementById('step-resumen'), 
+        elStepConf = document.getElementById('step-confirmacion'), 
+        elTituloRest = document.getElementById('titulo-restaurante'), 
+        elListaPlatos = document.getElementById('lista-platos'), 
+        elListaResumen = document.getElementById('lista-resumen'), 
+        elTotal = document.getElementById('total-delivery'), 
+        elCartCount = document.getElementById('cart-count'), 
+        elCartTotalFloat = document.getElementById('cart-total-float'), 
+        elToastContainer = document.getElementById('toast-container'),
+        elBrandHome = document.getElementById('brand-home');
+
+  function mostrarSoloPanel(p) { 
+    [elStepRest, elStepProd, elStepRes, elStepConf].forEach(s => { 
+      s.classList.toggle('active', s === p); 
+      s.hidden = (s !== p); 
+    }); 
+    actualizarPasos(p); 
+  }
+
+  function actualizarPasos(p) { 
+    let n = '1';
+    if (p === elStepProd) n = '2';
+    if (p === elStepRes || p === elStepConf) n = '3';
+    
+    document.querySelectorAll('[data-step-indicator]').forEach(i => {
+      i.classList.toggle('active', i.getAttribute('data-step-indicator') === n);
+    }); 
+  }
+
+  function filtrar() { 
+    elListaRest.innerHTML = ''; 
+    RESTAURANTES.forEach(r => { 
+      if (elFiltro.value !== 'todas' && r.categoria !== elFiltro.value) return; 
+      const li = document.createElement('li'); 
+      li.innerHTML = `
+        <button class="card-rest" data-rest="${r.id}">
+          <div class="card-img-container">
+            <img src="${r.img}" alt="${r.nombre}">
+          </div>
+          <div class="card-info">
+            <strong>${r.nombre}</strong>
+            <span class="tag-cat">${r.categoria.toUpperCase()}</span>
+          </div>
+        </button>`; 
+      elListaRest.appendChild(li); 
+    }); 
+  }
+
+  function abrirMenu(id) { 
+    restauranteActual = id; 
+    const r = RESTAURANTES.find(x => x.id === id); 
+    elTituloRest.textContent = r.nombre; 
+    elListaPlatos.innerHTML = ''; 
+    (MENU[id]||[]).forEach(p => { 
+      const itemEnPedido = pedido.find(x => x.id === p.id);
+      const cant = itemEnPedido ? itemEnPedido.cant : 0;
+
+      const li = document.createElement('li'); 
+      li.className = 'plato-row'; 
+      li.id = `plato-${p.id}`; 
+      li.innerHTML = `
+        <i class="bi ${p.icon}" style="font-size:1.5rem; color: var(--neon-pink);"></i>
+        <span style="flex:1; font-weight:600;">${p.nombre}</span>
+        <strong style="margin-right: 10px;">$${p.precio} MXN</strong>
+        <div class="controles-plato" style="display: flex; align-items: center; gap: 8px;">
+          <span class="badge-cantidad" id="badge-${p.id}" ${cant > 0 ? '' : 'style="display:none"'}>${cant}</span>
+          <button class="btn-mini" data-add="${p.id}" data-nom="${p.nombre}" data-pre="${p.precio}">+</button>
+        </div>`; 
+      elListaPlatos.appendChild(li); 
+    }); 
+    mostrarSoloPanel(elStepProd); 
+  }
+
+  function agregar(id, nom, pre) { 
+    const l = pedido.find(x => x.id === id); 
+    if(l) l.cant++; 
+    else pedido.push({id, nom, pre, cant:1}); 
+    
+    const badge = document.getElementById(`badge-${id}`);
+    if(badge) {
+      badge.textContent = pedido.find(x => x.id === id).cant;
+      badge.style.display = 'block';
+    }
+
+    actualizarFloat(); 
+    showFeedback(nom + " añadido"); 
+  }
+
+  function showFeedback(msg) { 
+    const toast = document.createElement('div');
+    toast.className = 'toast-mini'; 
+    toast.innerHTML = `
+      <img src="${IMAGEN_FEEDBACK}" class="toast-icon">
+      <span>${msg}</span>
+    `; 
+    elToastContainer.appendChild(toast); 
+    setTimeout(() => {
+      toast.classList.add('out');
+      setTimeout(() => toast.remove(), 500);
+    }, 2000); 
+  }
+
+  function eliminar(id) { 
+    pedido = pedido.filter(x => x.id !== id); 
+    actualizarFloat(); 
+    pintarResumen(); 
+  }
+
+  function actualizarFloat() { 
+    const t = pedido.reduce((a,b)=>a+(b.pre*b.cant),0); 
+    elCartCount.textContent = pedido.reduce((a,b)=>a+b.cant,0); 
+    elCartTotalFloat.textContent = `$${t} MXN`; 
+    elTotal.textContent = `$${t} MXN`; 
+  }
+
+  function pintarResumen() { 
+    elListaResumen.innerHTML = ''; 
+    document.getElementById('resumen-vacio').hidden = pedido.length > 0; 
+    pedido.forEach(l => { 
+      const li = document.createElement('li'); 
+      li.className = 'plato-row'; 
+      li.innerHTML = `
+        <span style="flex:1">${l.nom} x ${l.cant}</span>
+        <strong style="margin-right:15px">$${l.pre * l.cant} MXN</strong>
+        <button class="btn-danger-outline" data-del="${l.id}" style="padding:2px 8px; font-size:12px">X</button>`; 
+      elListaResumen.appendChild(li); 
+    }); 
+  }
+
+  // --- EVENT LISTENERS NAVEGACIÓN PRINCIPAL ---
+
+  // Logo / Título -> Inicio
+  elBrandHome.addEventListener('click', () => {
+    restauranteActual = null;
+    mostrarSoloPanel(elStepRest);
+    filtrar();
+  });
+
+  // Indicadores de Pasos (1, 2, 3)
+  document.querySelectorAll('[data-step-indicator]').forEach(i => {
+    i.addEventListener('click', () => {
+      const step = i.getAttribute('data-step-indicator');
+      if (step === '1') {
+        mostrarSoloPanel(elStepRest);
+      } else if (step === '2') {
+        if (restauranteActual) {
+          abrirMenu(restauranteActual);
+        } else {
+          showFeedback("Selecciona un local primero");
+        }
+      } else if (step === '3') {
+        if (pedido.length > 0) {
+          pintarResumen();
+          mostrarSoloPanel(elStepRes);
+        } else {
+          showFeedback("Tu maletín está vacío");
+        }
+      }
+    });
+  });
+
+  // Otros Eventos
+  elListaRest.addEventListener('click', e => { 
+    const b = e.target.closest('[data-rest]'); 
+    if(b) abrirMenu(b.getAttribute('data-rest')); 
+  });
+
+  elFiltro.addEventListener('change', filtrar);
+
+  elListaPlatos.addEventListener('click', e => { 
+    const b = e.target.closest('[data-add]'); 
+    if(b) agregar(b.getAttribute('data-add'), b.getAttribute('data-nom'), parseFloat(b.getAttribute('data-pre'))); 
+  });
+
+  elListaResumen.addEventListener('click', e => { 
+    const b = e.target.closest('[data-del]'); 
+    if(b) eliminar(b.getAttribute('data-del')); 
+  });
+
+  document.getElementById('btn-volver-rest').addEventListener('click', () => mostrarSoloPanel(elStepRest));
+
+  document.getElementById('btn-carrito').addEventListener('click', () => { 
+    pintarResumen(); 
+    mostrarSoloPanel(elStepRes); 
+  });
+
+  document.getElementById('btn-seguir-comprando').addEventListener('click', () => {
+    if(restauranteActual) abrirMenu(restauranteActual);
+    else mostrarSoloPanel(elStepRest);
+  });
+
+  document.getElementById('btn-vaciar').addEventListener('click', () => { 
+    if(confirm("¿Deseas vaciar tu inventario?")) { 
+      pedido=[]; 
+      actualizarFloat(); 
+      pintarResumen(); 
+    } 
+  });
+
+  document.getElementById('btn-comprar').addEventListener('click', () => { 
+    if(!pedido.length) return; 
+    if(confirm("¿Confirmar envío interdimensional?")) { 
+      document.getElementById('msg-confirm').textContent = `Tu envío por ${elTotal.textContent} está en camino a máxima velocidad turbo.`; 
+      pedido=[]; 
+      actualizarFloat(); 
+      mostrarSoloPanel(elStepConf); 
+    } 
+  });
+
+  document.getElementById('btn-nuevo').addEventListener('click', () => { 
+    restauranteActual=null; 
+    mostrarSoloPanel(elStepRest); 
+    filtrar();
+  });
+
+  filtrar();
+})();

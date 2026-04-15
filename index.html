@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dandadan Express</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Lora:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css" />
+  <script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "wc7ikmxxuu");
+</script>
+</head>
+<body>
+  <div class="dandadan-aura-overlay"></div>
+  <div class="video-bg-container">
+    <video autoplay loop muted playsinline id="bg-video-dandadan">
+      <source src="./assets/fondo-giro.mp4" type="video/mp4">
+    </video>
+  </div>
+  
+  <div id="toast-container" class="toast-container"></div>
+  
+  <header class="header" style="background: #4a148c; border-bottom: 2px solid #e040fb;">
+    <div class="header-content" style="max-width:none; width:100%; padding:0 2rem; display:flex; justify-content:space-between; align-items:center; box-sizing:border-box;">
+      <div class="brand" id="brand-home" style="display:flex; align-items:center; gap:0.8rem; cursor:pointer;">
+        <img src="./assets/dandan.png" width="45" height="45" alt="Momo Ayase" />
+        <h1 style="color: #f3e5f5; font-family: 'Syne', sans-serif; margin:0;">Dandadan Express</h1>
+      </div>
+      <nav class="steps-nav" style="display:flex; gap:0.5rem;">
+        <span class="step active" data-step-indicator="1" style="cursor:pointer;">INICIO</span>
+        <span class="step" data-step-indicator="2" style="cursor:pointer;">CARTA</span>
+        <span class="step" data-step-indicator="3" style="cursor:pointer;">PAGO</span>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main-container">
+    <section id="step-restaurante" class="panel active">
+      <h2 class="section-title">¿Selecciona Tu Restaurante?</h2>
+      <div class="filter-wrapper">
+        <select id="filtro-cat" style="border-color: #7b1fa2;">
+          <option value="todas">TODAS LAS CATEGORÍAS</option>
+          <option value="paranormal">Paranormal (Japonesa)</option>
+          <option value="aparicion">Aparición (Americana)</option>
+          <option value="espiritual">Espiritual (Postres)</option>
+        </select>
+      </div>
+      <ul id="lista-restaurantes" class="cards-grid"></ul>
+    </section>
+
+    <section id="step-productos" class="panel" hidden>
+      <header class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <h2 id="titulo-restaurante">Invocaciones</h2>
+        <button type="button" class="btn-back" id="btn-volver-rest" style="background: #7b1fa2; color: white;">OTRO SITIO <span>&rarr;</span></button>
+      </header>
+      <ul id="lista-platos" class="menu-list"></ul>
+      <div class="cart-floating">
+        <button type="button" id="btn-carrito" class="btn-cart-main" style="background: #aa00ff; border-color: #f3e5f5;">👽 AVISTAMIENTOS (<span id="cart-count">0</span>) <span id="cart-total-float">$0 MXN</span></button>
+      </div>
+    </section>
+
+    <section id="step-resumen" class="panel" hidden>
+      <h2 class="section-title">ALTAR DE INVOCACIONES</h2>
+      <ul id="lista-resumen" class="summary-list"></ul>
+      <p id="resumen-vacio" class="empty-msg">No has seleccionado nada aún.</p>
+      
+      <div class="summary-footer">
+        <p class="total-display" style="text-align:center; font-size:1.6rem; margin-bottom:1.5rem; color: #4a148c;">
+          Precio Final: <strong id="total-delivery">0,00 MXN</strong>
+        </p>
+        <div class="action-buttons" style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+          <button type="button" id="btn-comprar" class="btn-primary" style="background: #6a1b9a; grid-column: 1 / span 2; padding: 1.2rem; font-size: 1.2rem;">¡INVOCAR PEDIDO!</button>
+          <button type="button" class="btn-danger-outline" id="btn-vaciar" style="border-color: #ba68c8; color: #7b1fa2;">EXORCIZAR PEDIDOS</button>
+          <button type="button" class="btn-secondary" id="btn-seguir-comprando" style="background:#f3e5f5; border: 1px solid #7b1fa2; color: #4a148c;">MÁS APARICIONES</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="step-confirmacion" class="panel centered-panel" hidden>
+      <img src="./assets/turbolisto.png" style="border-radius: 50%; border: 4px solid #aa00ff;" width="350" height="250" alt="Okarun" />
+      <h2 style="color: #4a148c;">¡Exorcismo Cumplido!</h2>
+      <p id="msg-confirm" style="font-weight: 600;"></p>
+      <button type="button" class="btn-primary" id="btn-nuevo" style="background:#4a148c;">NUEVA APARICIÓN</button>
+    </section>
+  </main>
+
+  <footer class="footer" style="background: #1a1a1a; color: #e040fb;">
+    © 2026 Dandadan Express — Turbo Abuela Delivery
+  </footer>
+  <script src="./script.js"></script>
+</body>
+</html>
